@@ -35,7 +35,10 @@ open class BlackOverlayView: UIControl {
     var highlightRect:CGRect = CGRect.zero
 
     override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if highlightRect.contains(point) { return nil }
+        if highlightRect.contains(point) {
+            sendActions(for: .touchUpInside)
+            return nil
+        }
         return super.hitTest(point, with: event)
     }
 }
