@@ -31,6 +31,15 @@ public enum PopoverOption {
   case auto
 }
 
+open class BlackOverlayView: UIControl {
+    var highlightRect:CGRect = CGRect.zero
+
+    override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if highlightRect.contains(point) { return nil }
+        return super.hitTest(point, with: event)
+    }
+}
+
 open class Popover: UIView {
 
   // custom property
@@ -56,7 +65,7 @@ open class Popover: UIView {
   open var didShowHandler: (() -> ())?
   open var didDismissHandler: (() -> ())?
 
-  public fileprivate(set) var blackOverlay: UIControl = UIControl()
+  public fileprivate(set) var blackOverlay = BlackOverlayView()
 
   fileprivate var containerView: UIView!
   fileprivate var contentView: UIView!
@@ -437,6 +446,7 @@ private extension Popover {
     fillLayer.fillRule = CAShapeLayerFillRule.evenOdd
     fillLayer.fillColor = self.blackOverlayColor.cgColor
     self.blackOverlay.layer.addSublayer(fillLayer)
+    self.blackOverlay.highlightRect = highlightRect
   }
 
   func show() {
