@@ -34,9 +34,21 @@ public enum PopoverOption {
 open class BlackOverlayView: UIControl {
     var highlightRect:CGRect = CGRect.zero
 
+    var didTapHighlight:()->()
+
+    init(didTapHighlight:@escaping ()->()) {
+        self.didTapHighlight = didTapHighlight
+        super.init(frame: CGRect.zero)
+    }
+
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override open func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if highlightRect.contains(point) {
             sendActions(for: .touchUpInside)
+            didTapHighlight()
             return nil
         }
         return super.hitTest(point, with: event)
@@ -68,7 +80,9 @@ open class Popover: UIView {
   open var didShowHandler: (() -> ())?
   open var didDismissHandler: (() -> ())?
 
-  public fileprivate(set) var blackOverlay = BlackOverlayView()
+  public fileprivate(set) lazy var blackOverlay = BlackOverlayView(didTapHighlight: { [weak self] in
+    self?.dismiss()
+  })
 
   fileprivate var containerView: UIView!
   fileprivate var contentView: UIView!
@@ -127,6 +141,10 @@ open class Popover: UIView {
     }
     self.show(contentView, fromView: fromView, inView: rootView)
   }
+
+    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        return false
+    }
 
   open func show(_ contentView: UIView, fromView: UIView, inView: UIView) {
     let point: CGPoint
